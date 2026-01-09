@@ -1,0 +1,106 @@
+openapi: 3.0.0
+info:
+  title: Gemini Nano Camera API
+  version: 1.0.0
+  description: API for AI-powered image enhancement and processing.
+paths:
+  /v1/process/upload:
+    post:
+      summary: Upload an image for processing
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                options:
+                  type: string
+                  description: JSON string of processing options
+      responses:
+        '200':
+          description: Processing started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+
+  /v1/process/status/{job_id}:
+    get:
+      summary: Check processing status
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [queued, processing, completed, failed]
+                  result_url:
+                    type: string
+                  analysis:
+                    type: object
+                    description: Auto-enhance analysis data
+
+  /v1/process/batch:
+    post:
+      summary: Batch process images
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                options:
+                  type: string
+      responses:
+        '200':
+          description: Batch job started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  batch_id:
+                    type: string
+
+components:
+  schemas:
+    ProcessingOptions:
+      type: object
+      properties:
+        modules:
+          type: array
+          items:
+            type: string
+            enum: [super_res, auto_enhance, color_profile, noise_reduction]
+        parameters:
+          type: object
+          properties:
+            profile_name:
+              type: string
+              enum: [leica_bw, fuji_prov, ricoh_gr, hasselblad]
+            output_format:
+              type: string
+              enum: [jpeg, png]
+            quality:
+              type: integer
